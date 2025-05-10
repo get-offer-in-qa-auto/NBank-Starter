@@ -26,7 +26,7 @@ jobs:
             ls
             rm -f .bash_profile
 
-            REPO_DIR=~/deploy/$REPO_NAME
+            REPO_DIR=~/$REPO_NAME
             if [ ! -d "$REPO_DIR" ]; then
               git clone https://github.com/$REPO_FULL.git
             fi
