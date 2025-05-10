@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Обновлено до v4 для актуальности
+        uses: actions/checkout@v4
 
       - name: Install sshpass
         run: |
@@ -20,67 +20,45 @@ jobs:
 
       - name: Deploy and restart
         env:
-          # Передаем секреты и переменные окружения GitHub Actions в шаг
-          # Это делает их доступными для локальной оболочки, которая будет формировать команду ssh
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          # Токен для доступа к GitHub, если репозиторий приватный.
-          # Создайте Personal Access Token (PAT) с правами 'repo' и сохраните его как секрет GH_TOKEN
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          REPO_FULL_NAME: ${{ github.repository }} # Например, "owner/repo-name"
-          REPO_NAME: ${{ github.event.repository.name }} # Например, "repo-name"
+          REPO_FULL_NAME: ${{ github.repository }}
+          REPO_NAME: ${{ github.event.repository.name }}
 
         run: |
           echo "Starting deployment to $SERVER_HOST..."
 
-          # Формируем URL репозитория с токеном для приватных репозиториев
-          # Если репозиторий публичный, токен не обязателен, но и не помешает
-          # Для публичных можно оставить: REPO_URL="https://github.com/${REPO_FULL_NAME}.git"
           REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO_FULL_NAME}.git"
 
-          # Команды, которые будут выполнены на удаленном сервере
-          # Обратите внимание:
-          # - `set -e`: скрипт завершится при первой ошибке.
-          # - Переменные ${{...}} или $VAR из env: раскрываются локально GitHub Actions Runner'ом.
-          # - Переменные, определенные внутри скрипта для сервера (например, REMOTE_REPO_DIR),
-          #   должны использовать \$ для экранирования, чтобы они раскрывались на сервере.
-          # - Мы передаем REPO_NAME и REPO_URL как часть скрипта, они будут вставлены "как есть".
-
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" "
-            set -e # Прерывать выполнение при ошибках
+            set -e
 
             echo 'Connected to server. Starting remote script...'
 
-            REMOTE_REPO_DIR=\"~/deploy/${REPO_NAME}\" # REPO_NAME подставляется из env GitHub Actions
+            REMOTE_REPO_DIR=\"~/deploy/${REPO_NAME}\"
 
             echo \"Target repository directory on server: \$REMOTE_REPO_DIR\"
 
             if [ ! -d \"\$REMOTE_REPO_DIR\" ]; then
-              echo \"Repository directory \$REMOTE_REPO_DIR does not exist. Cloning...\"
               mkdir -p ~/deploy
               cd ~/deploy
-              echo \"Cloning from ${REPO_URL}...\" # REPO_URL подставляется из env GitHub Actions
-              git clone --quiet \"${REPO_URL}\" \"${REPO_NAME}\" # Клонируем в директорию с именем репозитория
+              git clone --quiet \"${REPO_URL}\" \"${REPO_NAME}\"
             else
-              echo \"Repository directory \$REMOTE_REPO_DIR exists. Pulling changes...\"
               cd \"\$REMOTE_REPO_DIR\"
-              # Убедимся, что origin использует URL с токеном, если он нужен
               git remote set-url origin \"${REPO_URL}\"
               git fetch origin main --quiet
-              git reset --hard origin/main --quiet # Сбрасываем локальные изменения к состоянию origin/main
-              git pull origin main --quiet # Эта команда может быть избыточной после reset, но для уверенности
+              git reset --hard origin/main --quiet
+              git pull origin main --quiet
             fi
 
-            cd \"\$REMOTE_REPO_DIR\" # Переходим в директорию репозитория еще раз для уверенности
+            cd \"\$REMOTE_REPO_DIR\"
 
             if [ -f ./restart.bash ]; then
-              echo 'Making restart.bash executable...'
               chmod +x ./restart.bash
-              echo 'Executing restart.bash...'
               ./restart.bash
-              echo 'restart.bash executed.'
             else
               echo 'WARNING: restart.bash not found in the repository root on the server.'
             fi
