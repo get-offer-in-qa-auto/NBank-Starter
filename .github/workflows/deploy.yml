@@ -23,6 +23,9 @@ jobs:
             REPO_NAME="${{ github.event.repository.name }}"
             REPO_FULL="${{ github.repository }}"
 
+            ls
+            rm -f .bash_profile
+
             REPO_DIR=~/deploy/$REPO_NAME
             if [ ! -d "$REPO_DIR" ]; then
               mkdir -p ~/deploy
@@ -30,9 +33,6 @@ jobs:
               git clone https://github.com/$REPO_FULL.git
             fi
             cd "$REPO_DIR"
-
-            ls
-            rm -f .bash_profile
 
             git pull origin main
             chmod +x restart.bash
