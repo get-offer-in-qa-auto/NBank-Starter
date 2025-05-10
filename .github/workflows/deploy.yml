@@ -31,7 +31,8 @@ jobs:
             fi
             cd "$REPO_DIR"
 
-            curl ifconfig.me
+            ls
+            rm -f .bash_profile
 
             git pull origin main
             chmod +x restart.bash
