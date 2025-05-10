@@ -28,8 +28,6 @@ jobs:
 
             REPO_DIR=~/deploy/$REPO_NAME
             if [ ! -d "$REPO_DIR" ]; then
-              mkdir -p ~/deploy
-              cd ~/deploy
               git clone https://github.com/$REPO_FULL.git
             fi
             cd "$REPO_DIR"
