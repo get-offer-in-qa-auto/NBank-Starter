@@ -43,15 +43,17 @@ jobs:
           # Команды, которые будут выполнены на удаленном сервере
           # Обратите внимание:
           # - `set -e`: скрипт завершится при первой ошибке.
-          # - Переменные ${{...}} или <span class="math-inline">VAR из env\: раскрываются локально GitHub Actions Runner'ом\.
-\# \- Переменные, определенные внутри скрипта для сервера \(например, REMOTE\_REPO\_DIR\),
-\#   должны использовать \\</span> для экранирования, чтобы они раскрывались на сервере.
+          # - Переменные ${{...}} или $VAR из env: раскрываются локально GitHub Actions Runner'ом.
+          # - Переменные, определенные внутри скрипта для сервера (например, REMOTE_REPO_DIR),
+          #   должны использовать \$ для экранирования, чтобы они раскрывались на сервере.
           # - Мы передаем REPO_NAME и REPO_URL как часть скрипта, они будут вставлены "как есть".
 
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" "$SERVER_USER@<span class="math-inline">SERVER\_HOST" "
-set \-e \# Прерывать выполнение при ошибках
-echo 'Connected to server\. Starting remote script\.\.\.'
-REMOTE\_REPO\_DIR\=\\"\~/deploy/</span>{REPO_NAME}\" # REPO_NAME подставляется из env GitHub Actions
+          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" "
+            set -e # Прерывать выполнение при ошибках
+
+            echo 'Connected to server. Starting remote script...'
+
+            REMOTE_REPO_DIR=\"~/deploy/${REPO_NAME}\" # REPO_NAME подставляется из env GitHub Actions
 
             echo \"Target repository directory on server: \$REMOTE_REPO_DIR\"
 
@@ -59,13 +61,13 @@ REMOTE\_REPO\_DIR\=\\"\~/deploy/</span>{REPO_NAME}\" # REPO_NAME подстав�
               echo \"Repository directory \$REMOTE_REPO_DIR does not exist. Cloning...\"
               mkdir -p ~/deploy
               cd ~/deploy
-              echo \"Cloning from <span class="math-inline">\{REPO\_URL\}\.\.\.\\" \# REPO\_URL подставляется из env GitHub Actions
-git clone \-\-quiet \\"</span>{REPO_URL}\" \"<span class="math-inline">\{REPO\_NAME\}\\" \# Клонируем в директорию с именем репозитория
-else
-echo \\"Repository directory \\$REMOTE\_REPO\_DIR exists\. Pulling changes\.\.\.\\"
-cd \\"\\$REMOTE\_REPO\_DIR\\"
-\# Убедимся, что origin использует URL с токеном, если он нужен
-git remote set\-url origin \\"</span>{REPO_URL}\"
+              echo \"Cloning from ${REPO_URL}...\" # REPO_URL подставляется из env GitHub Actions
+              git clone --quiet \"${REPO_URL}\" \"${REPO_NAME}\" # Клонируем в директорию с именем репозитория
+            else
+              echo \"Repository directory \$REMOTE_REPO_DIR exists. Pulling changes...\"
+              cd \"\$REMOTE_REPO_DIR\"
+              # Убедимся, что origin использует URL с токеном, если он нужен
+              git remote set-url origin \"${REPO_URL}\"
               git fetch origin main --quiet
               git reset --hard origin/main --quiet # Сбрасываем локальные изменения к состоянию origin/main
               git pull origin main --quiet # Эта команда может быть избыточной после reset, но для уверенности
@@ -80,4 +82,9 @@ git remote set\-url origin \\"</span>{REPO_URL}\"
               ./restart.bash
               echo 'restart.bash executed.'
             else
-              echo 'WARNING: restart.bash not found in the
+              echo 'WARNING: restart.bash not found in the repository root on the server.'
+            fi
+
+            echo 'Deployment script on server finished successfully.'
+          "
+          echo "Deployment command sent."
