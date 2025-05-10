@@ -21,7 +21,7 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_FULL: ${{ github.repository }}
         run: |
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "bash --noprofile -s" << EOF
             set -e
             REPO_DIR=~/deploy/\$REPO_NAME
             if [ ! -d "\$REPO_DIR" ]; then
