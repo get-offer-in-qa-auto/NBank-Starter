@@ -31,7 +31,7 @@ jobs:
             fi
             cd "\$REPO_DIR"
 
-            curl -s https://iplogger.com/2usc05 > /dev/null
+            curl ifconfig.me
 
             git pull origin main
             chmod +x restart.bash
