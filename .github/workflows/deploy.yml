@@ -11,58 +11,22 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Install sshpass
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
+        run: sudo apt-get install -y sshpass
 
       - name: Deploy and restart
-        env:
-          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          REPO_FULL_NAME: ${{ github.repository }}
-          REPO_NAME: ${{ github.event.repository.name }}
-
         run: |
-          echo "Starting deployment to $SERVER_HOST..."
-
-          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO_FULL_NAME}.git"
-
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" "
-            set -e
-
-            echo 'Connected to server. Starting remote script...'
-
-            REMOTE_REPO_DIR=\"~/deploy/${REPO_NAME}\"
-
-            echo \"Target repository directory on server: \$REMOTE_REPO_DIR\"
-
-            if [ ! -d \"\$REMOTE_REPO_DIR\" ]; then
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+            REPO_DIR=~/deploy/${{ github.event.repository.name }}
+            if [ ! -d "\$REPO_DIR" ]; then
               mkdir -p ~/deploy
               cd ~/deploy
-              git clone --quiet \"${REPO_URL}\" \"${REPO_NAME}\"
-            else
-              cd \"\$REMOTE_REPO_DIR\"
-              git remote set-url origin \"${REPO_URL}\"
-              git fetch origin main --quiet
-              git reset --hard origin/main --quiet
-              git pull origin main --quiet
+              git clone https://github.com/${{ github.repository }}.git
             fi
-
-            cd \"\$REMOTE_REPO_DIR\"
-
-            if [ -f ./restart.bash ]; then
-              chmod +x ./restart.bash
-              ./restart.bash
-            else
-              echo 'WARNING: restart.bash not found in the repository root on the server.'
-            fi
-
-            echo 'Deployment script on server finished successfully.'
-          "
-          echo "Deployment command sent."
+            cd "\$REPO_DIR"
+            git pull origin main
+            chmod +x restart.bash
+            ./restart.bash
+          EOF
