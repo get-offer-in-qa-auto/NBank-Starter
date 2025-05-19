@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: spring-bank-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  namespaceSelector:
+    matchNames:
+      - default
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
+      basicAuth:
+        username:
+          name: backend-basic-auth
+          key: username
+        password:
+          name: backend-basic-auth
+          key: password

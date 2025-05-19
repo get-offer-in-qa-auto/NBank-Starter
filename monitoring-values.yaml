@@ -1,0 +1,25 @@
+grafana:
+  enabled: true
+  service:
+    type: NodePort
+  adminUser: admin
+  adminPassword: admin
+  sidecar:
+    dashboards:
+      enabled: true
+    datasources:
+      enabled: true
+
+prometheus:
+  service:
+    type: NodePort
+  prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels:
+        release: monitoring
+
+prometheus-node-exporter:
+  enabled: true
+
+kube-state-metrics:
+  enabled: true

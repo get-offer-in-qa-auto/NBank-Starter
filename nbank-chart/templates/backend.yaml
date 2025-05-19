@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: nobugsme/nbank:with_validation_fix
+          ports:
+            - containerPort: 4111
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: backend  # важно: добавлен label, чтобы ServiceMonitor мог найти этот сервис
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: http               # ✅ добавлено имя порта
+      protocol: TCP
+      port: 4111
+      targetPort: 4111
+  type: ClusterIP
