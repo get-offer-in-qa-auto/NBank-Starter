@@ -33,6 +33,6 @@ jobs:
             fi
             cd \"\$REPO_DIR\"
             git pull origin main
-            chmod +x /docker_compose/restart_docker.bash
+            chmod +x docker_compose/restart_docker.bash
             ./docker_compose/restart_docker.bash
           "
