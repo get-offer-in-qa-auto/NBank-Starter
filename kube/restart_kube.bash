@@ -26,4 +26,4 @@ kubectl wait --for=condition=ready pod -l app=backend --timeout=360s
 echo "📋 Backend logs:"
 kubectl logs deployment/backend
 
-kubectl port-forward svc/backend 8083:4111 & kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090 & kubectl port-forward svc/nginx 8081:80
+kubectl port-forward svc/backend 8083:4111 & kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090 & kubectl port-forward svc/nginx 8081:80 & kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80

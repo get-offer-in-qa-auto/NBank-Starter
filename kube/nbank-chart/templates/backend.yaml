@@ -15,6 +15,7 @@ spec:
       containers:
         - name: backend
           image: nobugsme/nbank:with_validation_fix
+          imagePullPolicy: Always  # ← вот это важно
           ports:
             - containerPort: 4111
 ---
