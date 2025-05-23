@@ -64,14 +64,34 @@ helm upgrade --install kibana elastic/kibana \
   --set service.type=NodePort \
   --set resources.requests.memory=2Gi \
   --set resources.requests.cpu=1 \
-  --debug
 
+# Получение пароля от Elasticsearch
 ELASTIC_PWD=$(kubectl get secret elasticsearch-master-credentials -n logging -o jsonpath="{.data.password}" | base64 -d)
 echo "ELASTIC_PWD: $ELASTIC_PWD"
 
+# Получение имени первого узла Kubernetes
+NODE_NAME=$(kubectl get node -o jsonpath="{.items[0].metadata.name}")
+echo "NODE_NAME: $NODE_NAME"
+
+# Установка Filebeat с конфигурацией
+helm upgrade --install filebeat elastic/filebeat \
+  -n logging --create-namespace \
+  --set elasticsearch.hosts="{https://elasticsearch-master:9200}" \
+  --set elasticsearch.username=elastic \
+  --set elasticsearch.password="$ELASTIC_PWD" \
+  --set elasticsearch.ssl.verificationMode=none \
+  --set "tolerations[0].operator=Exists" \
+  --set "filebeat.autodiscover.providers[0].type=kubernetes" \
+  --set "filebeat.autodiscover.providers[0].node=$NODE_NAME" \
+  --set "filebeat.autodiscover.providers[0].hints.enabled=true" \
+  --set "processors[0].add_kubernetes_metadata.host=true" \
+  --set "processors[0].add_kubernetes_metadata.matchers[0].logs_path.logs_path=/var/log/containers/" \
+  --set "filebeat.autodiscover.providers[0].hints.default_config.enabled=true" \
+  --set daemonset.useHostPID=true
+
 echo "🔌 Port forwarding services..."
 
-kubectl port-forward svc/backend 8083:4111 > /dev/null 2>&1 &
+kubectl port-forward svc/backend 4111:4111 > /dev/null 2>&1 &
 
 kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090 > /dev/null 2>&1 &
 

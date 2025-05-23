@@ -11,6 +11,11 @@ spec:
     metadata:
       labels:
         app: backend
+      annotations:
+        co.elastic.logs/enabled: "true"                     # включаем сбор логов
+        co.elastic.logs/module: springboot                  # опционально, укажем тип логов (лучше парсинг)
+        co.elastic.logs/json.keys_under_root: "true"        # если ты логируешь в JSON (например, logstash encoder)
+        co.elastic.logs/json.add_error_key: "true"          # добавлять ошибки как поля
     spec:
       containers:
         - name: backend
