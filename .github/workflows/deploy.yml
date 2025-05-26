@@ -32,8 +32,8 @@ jobs:
               git clone https://github.com/$REPO_FULL.git
             fi
             cd \"\$REPO_DIR\"
-            cd docker_compose
             git pull origin main
+            cd docker_compose
             chmod +x restart_docker.bash
             ./restart_docker.bash
           "
