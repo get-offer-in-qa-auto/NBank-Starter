@@ -38,4 +38,4 @@ spec:
       protocol: TCP
       port: 4111
       targetPort: 4111
-  type: ClusterIP
+  type: NodePort
