@@ -6,7 +6,7 @@ minikube stop || true
 minikube delete || true
 
 echo "🚀 Starting Minikube with Docker..."
-minikube start --driver=docker
+minikube start --driver=docker --force
 
 echo "📦 Adding Helm repos..."
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true

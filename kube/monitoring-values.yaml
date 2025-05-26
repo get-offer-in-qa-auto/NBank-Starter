@@ -17,6 +17,7 @@ prometheus:
     serviceMonitorSelector:
       matchLabels:
         release: monitoring
+    maximumStartupDurationSeconds: 300
 
 prometheus-node-exporter:
   enabled: true
