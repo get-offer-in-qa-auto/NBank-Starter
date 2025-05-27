@@ -1,0 +1,30 @@
+name: Daily Random Activity
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # каждый день в 3:00 UTC (это 7:00 по Москве)
+  workflow_dispatch:       # возможность ручного запуска
+
+jobs:
+  random-daily-activity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate random delay (0–8 hours)
+        id: random_delay
+        run: |
+          SECONDS=$(shuf -i 0-28800 -n 1)  # 0–28800 сек = 0–8 часов
+          echo "Random delay: $SECONDS seconds (~$((SECONDS / 60)) minutes)"
+          echo "DELAY=$SECONDS" >> $GITHUB_ENV
+
+      - name: Wait random time
+        run: |
+          sleep ${{ env.DELAY }}
+
+      - name: Run daily activity script
+        run: |
+          chmod +x ./kube/test-scripts/daily_activity.bash
+          ./kube/test-scripts/daily_activity.bash

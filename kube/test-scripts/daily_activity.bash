@@ -1,6 +1,6 @@
 #!/bin/bash
 
-API_URL="http://localhost:4111/api/v1"
+API_URL="http://94.41.189.137:80/api/v1"
 ADMIN_AUTH="admin:admin"
 ADMIN_AUTH_HEADER="Authorization: Basic $(echo -n $ADMIN_AUTH | base64)"
 
