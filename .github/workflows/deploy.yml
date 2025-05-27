@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'docker_compose/**'   # ← реагирует только на изменения внутри папки
 
 jobs:
   deploy:
