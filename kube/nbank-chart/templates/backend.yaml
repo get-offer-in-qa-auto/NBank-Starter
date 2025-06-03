@@ -38,4 +38,5 @@ spec:
       protocol: TCP
       port: 4111
       targetPort: 4111
+      nodePort: 31934  # ← фиксируем здесь
   type: NodePort
