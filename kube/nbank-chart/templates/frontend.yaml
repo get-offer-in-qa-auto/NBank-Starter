@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: nobugsme/nbank-ui:latest
+          image: nobugsme/nbank-ui:with_nginx
           ports:
             - containerPort: 80
 ---

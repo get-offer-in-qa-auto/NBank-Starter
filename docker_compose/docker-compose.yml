@@ -1,6 +1,6 @@
 services:
   backend:
-    image: nobugsme/nbank:with_validation_fix
+    image: nobugsme/nbank:with_username_error_fix
     ports:
       - "4111:4111"
     networks:

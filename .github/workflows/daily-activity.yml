@@ -1,9 +1,9 @@
 name: Daily Random Activity
 
-on:
-  schedule:
-    - cron: '0 3 * * *'  # каждый день в 3:00 UTC (это 7:00 по Москве)
-  workflow_dispatch:       # возможность ручного запуска
+#on:
+#  schedule:
+#    - cron: '0 3 * * *'  # каждый день в 3:00 UTC (это 7:00 по Москве)
+#  workflow_dispatch:       # возможность ручного запуска
 
 jobs:
   random-daily-activity:
